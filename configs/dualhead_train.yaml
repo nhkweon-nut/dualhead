@@ -1,0 +1,51 @@
+# DualHead 학습 설정 (train_DualHead.py --config configs/dualhead_train.yaml)
+# 키 이름은 argparse dest와 동일 (하이픈 없이 스네이크 케이스).
+# CLI로 넘긴 인자가 이 파일보다 우선합니다.
+#
+# DDP: train_batch_size = GPU당 미니배치. 3090 24GB에서 너무 크면 OOM(그래프·어텐션).
+# 유효 전역 배치 ≈ train_batch_size × accumulate_grad_batches × GPU 수
+# Sweet spot 예: 64×4×4=1024 (GPU 활용·스텝 수 균형). OOM 시 32×8×4=1024 로 되돌리기.
+
+root: datasets/argoverse_v1
+
+train_batch_size: 64
+val_batch_size: 32
+accumulate_grad_batches: 4
+
+# 에폭당 학습 스텝 비율(0~1). 1.0 → 에폭당 전체 배치(전체 데이터 1회 분량).
+limit_train_batches: 1.0
+
+# Tensor Core 등: highest | high | medium
+matmul_precision: medium
+
+shuffle: true
+# GPU당 워커. 총 워커 ≈ num_workers × GPU 수
+num_workers: 6
+pin_memory: true
+persistent_workers: true
+
+gpus: 4
+max_epochs: 64
+monitor: val_minFDE
+save_top_k: 5
+precision: 16-mixed
+
+# DualHead / 모델
+historical_steps: 20
+future_steps: 30
+num_modes: 6
+rotate: true
+node_dim: 2
+edge_dim: 2
+embed_dim: 256
+num_heads: 8
+dropout: 0.1
+num_temporal_layers: 4
+num_global_layers: 3
+local_radius: 50
+parallel: false
+lr: 1.0e-3
+weight_decay: 1.0e-4
+T_max: 64
+edl_lambda_reg: 0.05
+edl_lambda_warmup_epochs: 10

@@ -1,0 +1,42 @@
+# Baseline reference only (not versioned)
+HiVT-main/
+
+# --- 로그 등 (재생성 가능) ---
+lightning_logs/
+wandb/
+
+# --- 데이터셋 (용량 큼; 경로는 README 등으로 안내) ---
+datasets/argoverse_v1/
+datasets/*.tar.gz
+datasets/*.zip
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+.env
+.env.*
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# --- 체크포인트·실험 산출물 (용량 큼) ---
+checkpoints/
+results/
+
+# --- Cursor ---
+.cursor/
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
