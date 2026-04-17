@@ -1,0 +1,65 @@
+# CascadedHiVT — Small 경로에 EDLMLPDecoder (HiVT MLPDecoder 동일 aggr + loc/scale + pi, NIG 8ch).
+#
+# 흐름
+#   Full (동결): LocalEncoder → GlobalInteractor → MLPDecoder(full)
+#   Small (학습): LocalEncoder → GlobalInteractor → proj_local / proj_global → EDLMLPDecoder
+#
+# 학습: freeze_encoder_and_full 로 인코더·full 동결, proj_* + small_decoder 만 AdamW.
+#
+#   python train_cascade_adapt.py --config configs/cascade_edl_mlp_small.yaml
+
+root: datasets/argoverse_v1
+hivt_ckpt: checkpoints/HiVT/epoch=63-step=411903.ckpt
+dualhead_ckpt: checkpoints/DualHead/epoch=61-step=12524.ckpt
+
+cascade_model: cascaded_hivt_edl_mlp
+
+# Global 까지 쓰는 Small 경로 (EDLMLPDecoder 가 aggr 에 global+local concat 사용)
+small_path_local_only: true
+
+train_batch_size: 256
+val_batch_size: 64
+accumulate_grad_batches: 1
+
+max_epochs: 64
+gpus: 4
+num_workers: 12
+
+save_top_k: -1
+precision: 16-mixed
+
+embed_dim: 128
+small_embed_dim: 128
+historical_steps: 20
+future_steps: 30
+num_modes: 6
+rotate: true
+node_dim: 2
+edge_dim: 2
+num_heads: 8
+dropout: 0.1
+num_temporal_layers: 4
+num_global_layers: 3
+local_radius: 50
+parallel: false
+
+lr: 1.5e-3
+weight_decay: 0.0001
+T_max: 20
+
+edl_lambda_reg: 0.05
+edl_lambda_warmup_epochs: 10
+
+freeze_encoder_and_full: true
+proj_lr_mult: 1.0
+proj_high_lr_epochs: 0
+
+log_full_val_metrics: true
+eval_full_only: false
+
+log_t_ps_each_epoch: true
+t_ps_benchmark_batches: 16
+
+monitor: val_minFDE
+
+checkpoint_dir: checkpoints/cascade_edl_mlp_small

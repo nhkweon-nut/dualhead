@@ -9,7 +9,7 @@ from .HiVT.local_encoder import (
     TemporalEncoderLayer,
 )
 from .HiVT.hivt import HiVT
-from .DualHead import DualHead, EDLMLPDecoder, EgoOnlyInteraction, EgoOnlyInteractionLayer
+from .DualHead import DualHead, EDLMLPDecoder, EgoOnlyInteraction, EgoOnlyInteractionLayer, SlimEDLDecoder
 
 __all__ = [
     "GRUDecoder",
@@ -26,6 +26,7 @@ __all__ = [
     "HiVT",
     "DualHead",
     "EDLMLPDecoder",
+    "SlimEDLDecoder",
     "EgoOnlyInteraction",
     "EgoOnlyInteractionLayer",
 ]

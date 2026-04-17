@@ -1,0 +1,54 @@
+# train_cascade_adapt.py 기본 설정 (CLI가 우선)
+# 예: python train_cascade_adapt.py --config configs/cascade_adapt.yaml --root datasets/argoverse_v1
+#
+# DDP: train_batch_size / val_batch_size 는 GPU당 미니배치. 유효 전역 배치 ≈ train_batch_size × GPU 수.
+# OOM 시 배치만 줄이고 num_workers 는 CPU 코어 수에 맞게(보통 GPU당 4~8).
+
+root: datasets/argoverse_v1
+hivt_ckpt: checkpoints/HiVT/epoch=63-step=411903.ckpt
+dualhead_ckpt: checkpoints/DualHead/epoch=61-step=12524.ckpt
+
+train_batch_size: 32
+val_batch_size: 32
+max_epochs: 20
+gpus: 4
+num_workers: 6
+
+save_top_k: -1
+
+precision: 16-mixed
+
+# HiVT / DualHead와 동일한 그래프 인코더
+# 반드시 HiVT 체크포인트와 동일: epoch=63 ckpt 는 embed_dim=128 (256이면 load 시 size mismatch)
+embed_dim: 128
+small_embed_dim: 128
+historical_steps: 20
+future_steps: 30
+num_modes: 6
+rotate: true
+node_dim: 2
+edge_dim: 2
+num_heads: 8
+dropout: 0.1
+num_temporal_layers: 4
+num_global_layers: 3
+local_radius: 50
+parallel: false
+
+# 적응 학습
+lr: 0.001
+weight_decay: 0.0001
+T_max: 20
+edl_lambda_reg: 0.05
+edl_lambda_warmup_epochs: 10
+freeze_encoder_and_full: true
+
+# proj 초기 몇 에폭만 더 높은 LR (예: mult 1.5, epochs 3 — 0이면 한 그룹·동일 lr)
+proj_lr_mult: 1.0
+proj_high_lr_epochs: 0
+
+# 검증: rotate+encode 1회 후 small + full 동시 로깅 (메모리 절약 시 false)
+log_full_val_metrics: true
+eval_full_only: false
+
+checkpoint_dir: checkpoints/CascadedHiVT
